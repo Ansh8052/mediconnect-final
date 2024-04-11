@@ -161,21 +161,76 @@ const deleteAllNotificationController = async (req, res) => {
 //GET ALL DOC
 const getAllDocotrsController = async (req, res) => {
   try {
-    const doctors = await doctorModel.find({ status: "approved" });
-    res.status(200).send({
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.order === 'asc' ? 1 : -1;
+    
+    // Building query object based on query parameters
+    const query = {};
+    if (req.query.userId) query.userId = req.query.userId;
+    if (req.query.specialization) query.specialization = req.query.specialization;
+    if (req.query.doctorId) query._id = req.query.doctorId;
+    if (req.query.searchTerm) {
+      query.$or = [
+        { address: { $regex: req.query.searchTerm, $options: 'i' } },
+        { firstName: { $regex: req.query.searchTerm, $options: 'i' } },
+        { lastName: { $regex: req.query.searchTerm, $options: 'i' } },
+      ];
+    }
+
+    const doctors = await doctorModel
+      .find(query)
+      .sort({ updatedAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
+
+    res.status(200).json({ success: true, data: doctors });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({ success: false, error, message: "Error while fetching doctors" });
+  }
+};
+const updateProfileController = async (req, res) => {
+  try {
+    const user = await userModel.findOneAndUpdate(
+      { userId: req.body.userId },
+      req.body
+    );
+    res.status(201).send({
       success: true,
-      message: "Docots Lists Fetched Successfully",
-      data: doctors,
+      message: "Doctor Profile Updated",
+      data: user,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
+      message: "User Profile Update issue",
       error,
-      message: "Errro WHile Fetching DOcotr",
     });
   }
 };
+
+
+
+// const getAllDocotrsControllers = async (req, res) => {
+//   try {
+//     const doctors = await doctorModel.find({ status: "approved" });
+//     res.status(200).send({
+//       success: true,
+//       message: "Docots Lists Fetched Successfully",
+//       data: doctors,
+//     });
+//   }
+//   catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       error,
+//       message: "Errro WHile Fetching DOcotr",
+//     });
+//   }
+// };
 
 //BOOK APPOINTMENT
 const bookeAppointmnetController = async (req, res) => {
@@ -271,6 +326,7 @@ module.exports = {
   applyDoctorController,
   getAllNotificationController,
   deleteAllNotificationController,
+  updateProfileController,
   getAllDocotrsController,
   bookeAppointmnetController,
   bookingAvailabilityController,

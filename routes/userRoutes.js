@@ -6,6 +6,7 @@ const {
   applyDoctorController,
   getAllNotificationController,
   deleteAllNotificationController,
+  updateProfileController,
   getAllDocotrsController,
   bookeAppointmnetController,
   bookingAvailabilityController,
@@ -45,8 +46,11 @@ router.post(
 );
 
 //GET ALL DOC
-router.get("/getAllDoctors", authMiddleware, getAllDocotrsController);
+// router.get("/getAllDoctors", authMiddleware, getAllDocotrsControllers);
+router.get(`/getAllDoctor`, authMiddleware, getAllDocotrsController);
+router.post("/updateProfile", authMiddleware, updateProfileController);
 
+                     
 //BOOK APPOINTMENT
 router.post("/book-appointment", authMiddleware, bookeAppointmnetController);
 

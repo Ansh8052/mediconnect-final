@@ -27,7 +27,7 @@ const port = 8080;
 //listen port
 app.listen(port, () => {
   console.log(
-'    Server is rumming on port 8000'
+'    Server is rumming on port 8080'
      .bgCyan.white
   );
 });
